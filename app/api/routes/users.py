@@ -17,7 +17,7 @@ router = APIRouter(
 def create_user(
     data:UserCreate,
     db: Session = Depends(get_db)
-):
+    ):
     service = UserServices(db)
     try:
         return service.create_user(data)
@@ -26,3 +26,17 @@ def create_user(
             status_code=status.HTTP_409_CONFLICT,
             detail=str(exc)
         )
+        
+@router.get("/{user_id}", response_model= UserResponse)
+def get_user(
+    user_id: int,
+    db:Session = Depends(get_db)
+    ):
+    service = UserServices(db)
+    try: 
+        return service.get_user(user_id)
+    except ValueError as exc:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=str(exc)
+        ) from exc

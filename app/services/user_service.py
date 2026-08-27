@@ -1,3 +1,4 @@
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
 from app.models.user import User
@@ -20,8 +21,20 @@ class UserServices:
             email = data.email,
             name = data.name
         )
-        
-        self.repository.create(user)
-        self.db.commit()
-        self.db.refresh(user)
+        try:
+            self.repository.create(user)
+            self.db.commit()
+            self.db.refresh(user)
+        except IntegrityError:
+            self.db.rollback()
+            raise ValueError("User with this email is already exists")
+        except Exception:
+            self.db.rollback()
+            raise
+        return user
+    
+    def get_user(self, id:int) -> User:
+        user = self.repository.get_by_id(id)
+        if not user:
+            raise ValueError("User Not Found")
         return user
