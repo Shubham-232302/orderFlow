@@ -29,12 +29,12 @@ def setup_database():
 def db_session(setup_database):
     connection = engine.connect()
     transaction = connection.begin()
-    session = Session(bind=connection)
+    session = Session(bind=connection, join_transaction_mode="create_savepoint")
     
     try:
         yield session
     finally:
-        session.close
+        session.close()
         transaction.rollback()
         connection.close()
         

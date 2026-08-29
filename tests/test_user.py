@@ -4,7 +4,8 @@ def test_create_user(client):
         "/api/v1/users",
         json = {
             "email": "abc@xyz.com",
-            "name":"sss"
+            "name":"sss",
+             "password": "password123"
         }
     )
     assert response.status_code == 201
@@ -20,7 +21,8 @@ def test_create_user(client):
 def test_duplicate_email(client):
     user = {
         "email": "xyz@abc.com",
-        "name": "user_1"
+        "name": "user_1",
+         "password": "password123"
     }
     
     first_user = client.post(
@@ -39,7 +41,8 @@ def test_duplicate_email(client):
 def test_invalid_email(client):
     user = {
         "email": "xyzabc.com",
-        "name": "user_1"
+        "name": "user_1",
+        "password": "password123"
     }    
     
     resp = client.post(
