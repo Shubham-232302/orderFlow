@@ -1,9 +1,13 @@
+import hashlib
+import secrets
+
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
 from app.models.user import User
 from app.repositories.user_repository import UserRepository
 from app.schemas.user import UserCreate
+from app.core.security import hash_password
 
 
 
@@ -19,7 +23,8 @@ class UserServices:
         
         user = User(
             email = data.email,
-            name = data.name
+            name = data.name,
+            password_hash = hash_password(data.password)
         )
         try:
             self.repository.create(user)
@@ -38,3 +43,14 @@ class UserServices:
         if not user:
             raise ValueError("User Not Found")
         return user
+
+    @staticmethod
+    def _hash_password(password: str) -> str:
+        salt = secrets.token_bytes(16)
+        password_hash = hashlib.pbkdf2_hmac(
+            "sha256",
+            password.encode("utf-8"),
+            salt,
+            600_000,
+        )
+        return f"{salt.hex()}:{password_hash.hex()}"
