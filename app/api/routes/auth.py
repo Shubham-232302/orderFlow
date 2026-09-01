@@ -5,6 +5,8 @@ from app.db.dependencies import get_db
 from app.schemas.auth import LoginRequest, TokenResponse
 from app.services.auth_service import AuthService
 
+from fastapi.security import OAuth2PasswordRequestForm
+
 
 
 
@@ -14,11 +16,11 @@ router = APIRouter(
 )
 
 @router.post("/login", response_model=TokenResponse)
-def login(data:LoginRequest, db:Session = Depends(get_db)):
+def login(form_data:OAuth2PasswordRequestForm = Depends(), db:Session = Depends(get_db)):
     service = AuthService(db)
     try:
         access_token = service.login(
-            data.email, data.password
+            form_data.username, form_data.password
         )
     except ValueError as exc:
         raise HTTPException(

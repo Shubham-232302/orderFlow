@@ -20,3 +20,7 @@ class UserRepository:
         self.db.flush()
         
         return user
+    
+    # def get_all_users(self) -> User | None:
+    #     statement = select(User)
+    #     return self.db.scalar(statement)

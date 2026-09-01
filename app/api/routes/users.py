@@ -4,7 +4,7 @@ from sqlalchemy.orm import Session
 from app.db.dependencies import get_db
 from app.schemas.user import UserCreate, UserResponse
 from app.services.user_service import UserServices
-from app.api.dependencies import get_current_user
+from app.api.dependencies import get_current_user, require_admin
 from app.models.user import User
 router = APIRouter(
     prefix="/users",
@@ -16,6 +16,10 @@ router = APIRouter(
 @router.get("/me", response_model=UserResponse)
 def get_me(curret_user: User = Depends(get_current_user)):
     return curret_user
+
+@router.get("/")
+def get_users(current_user: User = Depends(require_admin)):
+    return {"is_admin": True}
 
 @router.post("", response_model=UserResponse, status_code=status.HTTP_201_CREATED)
 def create_user(

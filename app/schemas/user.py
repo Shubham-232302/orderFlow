@@ -5,6 +5,7 @@ class UserCreate(BaseModel):
     email: EmailStr
     name: str
     password: str
+    role: str
     
 class UserResponse(BaseModel):
     model_config = ConfigDict(from_attributes=True)
