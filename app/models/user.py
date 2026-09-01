@@ -1,10 +1,15 @@
 from datetime import datetime
-from sqlalchemy import Boolean, DateTime, String, func
+from sqlalchemy import Boolean, DateTime, String, func, Enum as sqlenum
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.db.session import Base
+from enum import Enum
 
 
+
+class UserRole(str, Enum):
+    USER = "user"
+    ADMIN = "admin"
 
 class User(Base):
     __tablename__ = "users"
@@ -16,9 +21,9 @@ class User(Base):
         nullable=False
     )
     
-    name: Mapped[str] = mapped_column(
+    name: Mapped[str|None] = mapped_column(
         String(100),
-        nullable=True
+        nullable=True,
     )
     
     password_hash: Mapped[str] = mapped_column(
@@ -37,3 +42,11 @@ class User(Base):
         server_default=func.now(),
         nullable=False
     )
+    
+    role: Mapped[UserRole] = mapped_column(
+        sqlenum(UserRole, values_callable = lambda enum_cls: [member.value for member in enum_cls]),
+        default= UserRole.USER,
+        nullable=False
+    )
+    
+    
