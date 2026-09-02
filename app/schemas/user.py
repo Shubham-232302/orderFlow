@@ -1,10 +1,12 @@
 from datetime import datetime
-from pydantic import BaseModel, ConfigDict, EmailStr
+from pydantic import BaseModel, ConfigDict, EmailStr, Field
+from app.models.user import UserRole
 
 class UserCreate(BaseModel):
     email: EmailStr
     name: str
     password: str
+    role: UserRole = Field(default=UserRole.USER)
     
 class UserResponse(BaseModel):
     model_config = ConfigDict(from_attributes=True)
@@ -13,4 +15,5 @@ class UserResponse(BaseModel):
     email: EmailStr
     name: str
     is_active: bool
+    role: str
     created_at: datetime

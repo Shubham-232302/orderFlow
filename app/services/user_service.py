@@ -9,7 +9,8 @@ from app.repositories.user_repository import UserRepository
 from app.schemas.user import UserCreate
 from app.core.security import hash_password
 
-
+class  UserNotFoundError(Exception):
+    pass
 
 class UserServices:
     def __init__(self, db:Session) -> None:
@@ -41,8 +42,11 @@ class UserServices:
     def get_user(self, id:int) -> User:
         user = self.repository.get_by_id(id)
         if not user:
-            raise ValueError("User Not Found")
+            raise UserNotFoundError("User Not Found")
         return user
+    
+    def get_all_users(self) -> list[User]:
+        return self.repository.get_all()
 
     @staticmethod
     def _hash_password(password: str) -> str:
