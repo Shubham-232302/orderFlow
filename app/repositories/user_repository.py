@@ -21,6 +21,6 @@ class UserRepository:
         
         return user
     
-    # def get_all_users(self) -> User | None:
-    #     statement = select(User)
-    #     return self.db.scalar(statement)
+    def get_all(self) -> list[User]:
+        statement = self.db.query(User).all()
+        return statement

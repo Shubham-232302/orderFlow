@@ -44,11 +44,8 @@ class UserServices:
             raise ValueError("User Not Found")
         return user
     
-    # def get_users(self) -> User:
-    #     users = self.repository.get_all_users()
-    #     if not users:
-    #         raise ValueError("User Not Found")
-    #     return users
+    def get_all_users(self) -> list[User]:
+        return self.repository.get_all()
 
     @staticmethod
     def _hash_password(password: str) -> str:

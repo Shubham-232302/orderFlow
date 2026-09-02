@@ -51,3 +51,28 @@ def test_invalid_email(client):
     )
     
     assert resp.status_code == 422
+
+
+def test_get_me(client):
+    user = {
+        "email": "me@example.com",
+        "name": "me",
+        "password": "password123",
+    }
+
+    create_response = client.post("/api/v1/users", json=user)
+    assert create_response.status_code == 201
+
+    login_response = client.post(
+        "/api/v1/auth/login",
+        data={"username": user["email"], "password": user["password"]},
+    )
+    assert login_response.status_code == 200
+
+    me_response = client.get(
+        "/api/v1/users/me",
+        headers={"Authorization": f"Bearer {login_response.json()['access_token']}"},
+    )
+
+    assert me_response.status_code == 200
+    assert me_response.json()["email"] == user["email"]

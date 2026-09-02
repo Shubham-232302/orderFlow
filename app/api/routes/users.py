@@ -6,6 +6,7 @@ from app.schemas.user import UserCreate, UserResponse
 from app.services.user_service import UserServices
 from app.api.dependencies import get_current_user, require_admin
 from app.models.user import User
+from app.repositories.user_repository import UserRepository
 router = APIRouter(
     prefix="/users",
     tags=["Users"]
@@ -17,9 +18,11 @@ router = APIRouter(
 def get_me(curret_user: User = Depends(get_current_user)):
     return curret_user
 
-@router.get("/")
-def get_users(current_user: User = Depends(require_admin)):
-    return {"is_admin": True}
+@router.get("/", response_model=list[UserResponse])
+def get_users(current_user: User = Depends(require_admin),
+              db:Session = Depends(get_db)):
+    repository = UserRepository(db)
+    return repository.get_all()
 
 @router.post("", response_model=UserResponse, status_code=status.HTTP_201_CREATED)
 def create_user(
