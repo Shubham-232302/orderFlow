@@ -2,6 +2,7 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from app.models.user import User
+from app.schemas.user import UserUpdate
 
 class UserRepository:
     def __init__(self, db:Session) -> None:
@@ -24,3 +25,13 @@ class UserRepository:
     def get_all(self) -> list[User]:
         statement = self.db.query(User).all()
         return statement
+    
+    def update_user(self, user:User, update_user: UserUpdate):
+        
+        update_data = update_user.model_dump(exclude_unset=True)
+        
+        for field, value in update_data.items():
+            setattr(user, field, value)
+
+        self.db.flush()
+        
