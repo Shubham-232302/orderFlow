@@ -26,7 +26,7 @@ class UserRepository:
         statement = self.db.query(User).all()
         return statement
     
-    def update_user(self, user:User, update_user: UserUpdate):
+    def update_user(self, user:User, update_user: UserUpdate) -> User:
         
         update_data = update_user.model_dump(exclude_unset=True)
         
@@ -34,4 +34,5 @@ class UserRepository:
             setattr(user, field, value)
 
         self.db.flush()
+        return user
         

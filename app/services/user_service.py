@@ -6,7 +6,7 @@ from sqlalchemy.orm import Session
 
 from app.models.user import User
 from app.repositories.user_repository import UserRepository
-from app.schemas.user import UserCreate
+from app.schemas.user import UserCreate, UserUpdate
 from app.core.security import hash_password
 
 class  UserNotFoundError(Exception):
@@ -45,14 +45,15 @@ class UserServices:
             raise UserNotFoundError("User Not Found")
         return user
     
-    def update_user(self, id:int, user_update) -> None:
-        user = self.repository.get_by_id(id)
+    def update_user(self, user_id:int, user_update: UserUpdate) -> User:
+        user = self.repository.get_by_id(user_id)
         if not user:
             raise UserNotFoundError("User Not Found")
         try:
             self.repository.update_user(user, user_update)
             self.db.commit()
             self.db.refresh(user)
+            return user 
         except Exception:
             self.db.rollback()
             raise

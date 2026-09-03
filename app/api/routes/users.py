@@ -39,7 +39,7 @@ def create_user(
             detail=str(exc)
         )
 
-@router.patch("/{user_id}", status_code=status.HTTP_202_ACCEPTED)
+@router.patch("/{user_id}", response_model=UserResponse, status_code=status.HTTP_200_OK)
 def update_user(
     user_id: int,
     update_data: UserUpdate,
@@ -47,7 +47,7 @@ def update_user(
     _ = Depends(require_admin)):
     service = UserServices(db)
     try:
-        service.update_user(user_id, update_data)
+        return service.update_user(user_id, update_data)
     except UserNotFoundError as exc:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
