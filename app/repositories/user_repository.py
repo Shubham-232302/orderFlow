@@ -36,3 +36,6 @@ class UserRepository:
         self.db.flush()
         return user
         
+    def delete_user(self, user:User)->  None:
+        self.db.query(User).filter_by(id=User.id).delete()
+        self.db.flush()

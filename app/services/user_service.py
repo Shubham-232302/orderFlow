@@ -57,6 +57,17 @@ class UserServices:
         except Exception:
             self.db.rollback()
             raise
+        
+    def delete_user(self, user_id:int) -> None:
+        user = self.repository.get_by_id(user_id)
+        if not user:
+            raise UserNotFoundError("User not Found")
+        try:
+            self.db.delete(user)
+            self.db.commit()
+        except Exception:
+            self.db.rollback()
+            raise
     
     def get_all_users(self) -> list[User]:
         return self.repository.get_all()

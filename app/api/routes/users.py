@@ -73,3 +73,19 @@ def get_user(
             status_code=status.HTTP_404_NOT_FOUND,
             detail=str(exc)
         ) from exc
+        
+        
+@router.delete("/{user_id}", status_code=status.HTTP_204_NO_CONTENT)
+def delete_user(
+    user_id: int,
+    db:Session = Depends(get_db),
+    _ = Depends(require_admin)
+):
+    service = UserServices(db)
+    try:
+        service.delete_user(user_id)
+    except UserNotFoundError as exc:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=str(exc)
+            ) from exc 
