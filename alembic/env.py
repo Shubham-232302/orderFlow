@@ -7,8 +7,7 @@ from alembic import context
 
 
 from app.db.session import Base, DATABASE_URL
-from app.models import User # The user imported intentionally
-                            # without importing the model, sqlalchemy may not knowabout the users table when alembic compares metadata
+from app.models import User, Product # Import models so Alembic can compare their tables
                             
 
 # this is the Alembic Config object, which provides
