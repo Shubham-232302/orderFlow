@@ -52,5 +52,27 @@ def get_product_by_id(
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail=str(exc)
             )
+
+@router.patch("/{product_id}", response_model=ProductResponse, status_code=status.HTTP_200_OK)
+def update_product(
+    product_id:int,
+    product_data: ProductUpdate,
+    db: Session = Depends(get_db),
+    _:User = Depends(require_admin),
+    
+):
+    service = ProductService(db)
+    try:
+        return service.update_product(product_id, product_data)
+    except ProductNotFoundError as exc:
+                raise HTTPException(
+                    status_code=status.HTTP_404_NOT_FOUND,
+                    detail=str(exc)
+                ) from exc
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=str(e)
+        )
         
 

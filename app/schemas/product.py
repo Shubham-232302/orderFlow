@@ -17,5 +17,5 @@ class ProductResponse(BaseModel):
     
 class ProductUpdate(BaseModel):
     name: str | None = None
-    price: int | None = None
-    stock: int | None = None
+    price: int | None  = Field(default=None, gt=0)
+    stock: int | None = Field(default=None, ge=0)

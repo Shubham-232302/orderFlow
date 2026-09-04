@@ -39,5 +39,19 @@ class ProductService:
      
     def get_products(self) -> list[Product]:
         return self.repository.get_products()
+    
+    def update_product(self, product_id: int, product_data):
+        product = self.repository.get_product_by_id(product_id)
+        if not product:
+            raise ProductNotFoundError("Product not found")
+        try:
+            product = self.repository.update(product, product_data)
+            self.db.commit()
+            self.db.refresh(product)
+            return product
+        except Exception as e:
+            self.db.rollback()
+            raise
+        
         
             
