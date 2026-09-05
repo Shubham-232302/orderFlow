@@ -45,11 +45,22 @@ class ProductService:
         if not product:
             raise ProductNotFoundError("Product not found")
         try:
-            product = self.repository.update(product, product_data)
+            product = self.repository.update_product(product, product_data)
             self.db.commit()
             self.db.refresh(product)
             return product
         except Exception as e:
+            self.db.rollback()
+            raise
+        
+    def delete_product(self, product_id:int) -> None:
+        product = self.repository.get_product_by_id(product_id)
+        if not product:
+            raise ProductNotFoundError("Product not Found")
+        try:
+            self.repository.delete_product(product)
+            self.db.commit()
+        except Exception:
             self.db.rollback()
             raise
         

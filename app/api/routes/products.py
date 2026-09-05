@@ -75,4 +75,17 @@ def update_product(
             detail=str(e)
         )
         
+@router.delete("/{product_id}", status_code=status.HTTP_204_NO_CONTENT)
+def delete_product(product_id: int,
+                   db: Session = Depends(get_db),
+                   _:User = Depends(require_admin)
+                   ):
+    service = ProductService(db)
+    try:
+        service.delete_product(product_id)
+    except ProductNotFoundError as exc:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=str(exc)
+        )
 

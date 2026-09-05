@@ -25,9 +25,14 @@ class ProductRepository:
         self.db.flush()
         return product
     
-    def update(self, product: Product, product_data) -> Product:
+    def update_product(self, product: Product, product_data) -> Product:
         product_data = product_data.model_dump(exclude_unset = True)
         for key, value in product_data.items():
             setattr(product, key, value)
         self.db.flush()
         return product
+    
+    def delete_product(self, product: Product) -> None:
+        self.db.delete(product)
+        self.db.flush()
+        
