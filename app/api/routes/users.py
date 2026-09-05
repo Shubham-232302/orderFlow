@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
 from app.db.dependencies import get_db
-from app.schemas.user import UserCreate, UserResponse
+from app.schemas.user import UserCreate, UserResponse, UserUpdate
 from app.services.user_service import UserServices, UserNotFoundError
 from app.api.dependencies import get_current_user, require_admin
 from app.models.user import User
@@ -38,6 +38,26 @@ def create_user(
             status_code=status.HTTP_409_CONFLICT,
             detail=str(exc)
         )
+
+@router.patch("/{user_id}", response_model=UserResponse, status_code=status.HTTP_200_OK)
+def update_user(
+    user_id: int,
+    update_data: UserUpdate,
+    db: Session = Depends(get_db),
+    _ = Depends(require_admin)):
+    service = UserServices(db)
+    try:
+        return service.update_user(user_id, update_data)
+    except UserNotFoundError as exc:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=str(exc)
+            ) from exc
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=str(e)
+        )
         
 @router.get("/{user_id}", response_model= UserResponse)
 def get_user(
@@ -53,3 +73,19 @@ def get_user(
             status_code=status.HTTP_404_NOT_FOUND,
             detail=str(exc)
         ) from exc
+        
+        
+@router.delete("/{user_id}", status_code=status.HTTP_204_NO_CONTENT)
+def delete_user(
+    user_id: int,
+    db:Session = Depends(get_db),
+    _ = Depends(require_admin)
+):
+    service = UserServices(db)
+    try:
+        service.delete_user(user_id)
+    except UserNotFoundError as exc:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=str(exc)
+            ) from exc 

@@ -17,3 +17,9 @@ class UserResponse(BaseModel):
     is_active: bool
     role: str
     created_at: datetime
+    
+    
+class UserUpdate(BaseModel):
+    name: str | None = None
+    email: str | None = None
+    role: UserRole | None = None
