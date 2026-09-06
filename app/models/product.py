@@ -1,7 +1,13 @@
-from sqlalchemy import String, Integer,Float
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy import String, Integer
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.db.session import Base
+from typing import TYPE_CHECKING
+
+
+if TYPE_CHECKING:
+    from app.models.order_items import OrderItem
+
 
 class Product(Base):
     __tablename__ = "products"
@@ -24,3 +30,12 @@ class Product(Base):
         nullable=False,
         default= 0 
     )
+    
+    order_items: Mapped[list["OrderItem"]]= relationship(
+        back_populates="product"
+    )
+    
+    
+    
+    
+    
