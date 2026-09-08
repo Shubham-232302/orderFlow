@@ -7,7 +7,7 @@ from alembic import context
 
 
 from app.db.session import Base, DATABASE_URL
-from app.models import User, Product # Import models so Alembic can compare their tables
+from app.models import User, Product, Order , OrderItem # Import models so Alembic can compare their tables
                             
 
 # this is the Alembic Config object, which provides
