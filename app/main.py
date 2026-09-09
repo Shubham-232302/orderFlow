@@ -6,6 +6,7 @@ from sqlalchemy.orm import Session
 from app.db.dependencies import get_db
 from app.api.routes.users import router as users_router
 from app.api.routes.products import router as products_router
+from app.api.routes.orders import router as order_router
     
     
 from app.api.routes.auth import router as auth_router
@@ -32,6 +33,9 @@ app.include_router(
     prefix="/api/v1"
 )
 
-@app.get("/health")
-def read_items():
-    return {"message": "Hello, World!"}
+app.include_router(
+    order_router,
+    prefix="/api/v1"
+)
+
+
