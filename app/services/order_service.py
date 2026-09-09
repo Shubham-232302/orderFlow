@@ -10,6 +10,9 @@ from app.models.order_items import OrderItem
 
 
 
+class InsufficientStock(Exception):
+    pass
+
 class OrderService:
     def __init__(self, db:Session) -> None:
         self.db = db
@@ -30,7 +33,7 @@ class OrderService:
             for item in list_of_items:
                 product = self.get_product_by_id(item.product_id)
                 if product.stock < item.quantity:
-                    raise ValueError("Insufficient stock")
+                    raise InsufficientStock("Insufficient stock")
                 
                 total_amount+= product.price*item.quantity
                 validated_items.append({"product_id":item.product_id, "quantity":item.quantity, "unit_price":product.price })
