@@ -37,6 +37,13 @@ class ProductService:
              raise ProductNotFoundError("Product Not Found")
          return product
      
+     
+    # def get_product_for_update(self, product_id: int) -> Product:
+    #     product = self.repository.get_product_for_update(product_id)
+    #     if not product:
+    #         raise ProductNotFoundError("Product not found")
+    #     return product
+     
     def get_products(self) -> list[Product]:
         return self.repository.get_products()
     
