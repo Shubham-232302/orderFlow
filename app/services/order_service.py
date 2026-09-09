@@ -19,34 +19,43 @@ class OrderService:
         self.product_repository = ProductRepository(db)
         self.order_repository = OrderRepository(db)
         
-    def get_product_by_id(self, product_id:int) -> Product:
-        product = self.product_repository.get_product_by_id(product_id)
+    def get_product_for_update(self, product_id:int) -> Product:
+        product = self.product_repository.get_product_for_update(product_id)
         if not product:
             raise ProductNotFoundError("product not found")
         return product
     
     
     def create_order(self, list_of_items: list[OrderItemCreate], user_id: int) -> Order:
+        quantity = {}
+        
+        for itm in list_of_items:
+            if itm.product_id in quantity:
+                quantity[itm.product_id] += itm.quantity
+            else:
+                quantity[itm.product_id] = itm.quantity
+                
+                
         try:
             total_amount = 0
             validated_items = []
-            for item in list_of_items:
-                product = self.get_product_by_id(item.product_id)
-                if product.stock < item.quantity:
+            for key, value in sorted(quantity.items()):
+                product = self.get_product_for_update(key)
+                if product.stock < value:
                     raise InsufficientStock("Insufficient stock")
                 
-                total_amount+= product.price*item.quantity
-                validated_items.append({"product_id":item.product_id, "quantity":item.quantity, "unit_price":product.price })
-                self.product_repository.update_stock(product, item.quantity)
+                total_amount+= product.price*value
+                validated_items.append({"product_id":key, "quantity":value, "unit_price":product.price })
+                self.product_repository.update_stock(product, value)
             order = Order(user_id=user_id, total_amount=total_amount)
             order = self.order_repository.create_order(order)
             
             for ele in validated_items:
                 order_item = OrderItem(
-                    product_id = ele.get("product_id"),
                     order_id = order.id,
-                    quantity = ele.get("quantity"),
-                    unit_price = ele.get("unit_price")
+                    product_id=ele["product_id"],
+                    quantity=ele["quantity"],
+                    unit_price=ele["unit_price"]
                 )
                 self.order_repository.create_order_item(order_item)
             self.db.commit()

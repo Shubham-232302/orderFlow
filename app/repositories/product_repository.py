@@ -20,6 +20,10 @@ class ProductRepository:
         statement = select(Product).where(Product.id == product_id)
         return self.db.scalar(statement)
     
+    def get_product_for_update(self, product_id:int) -> Product|None:
+        statement = select(Product).where(Product.id == product_id).with_for_update()
+        return self.db.scalar(statement)
+    
     def create(self, product:Product) -> Product|None:
         self.db.add(product)
         self.db.flush()
