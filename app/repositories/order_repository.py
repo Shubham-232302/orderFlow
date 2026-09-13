@@ -24,3 +24,7 @@ class OrderRepository:
     def get_by_idempotency_key(self, user_id: int, idempotency_key:str) ->  None|Order:
         statement = select(Order).where(Order.user_id == user_id, Order.idempotency_key == idempotency_key)
         return self.db.scalar(statement)
+    
+    def get_orders_by_user(self, user_id: int) -> list[Order]:
+        statement = select(Order).where(Order.user_id == user_id)
+        return list(self.db.scalars(statement).all())

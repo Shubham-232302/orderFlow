@@ -41,3 +41,19 @@ def create_order(order_data: OrderCreate,
             detail="Internal Server Error"
         )
         
+
+@router.get("/", response_model=list[OrderResponse])
+def get_orders_by_user(
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    try:
+        service = OrderService(db)
+        return service.get_orders_by_user(current_user.id)
+    except Exception:
+            raise HTTPException(
+                status_code= status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail="Internal Server Error"
+            )
+            
+        

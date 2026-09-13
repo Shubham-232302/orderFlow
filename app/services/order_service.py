@@ -85,5 +85,8 @@ class OrderService:
             self.db.rollback()
             raise
             
+    
+    def get_orders_by_user(self, user_id:int) -> list[Order]:
+        return self.order_repository.get_orders_by_user(user_id)
             
         
