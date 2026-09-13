@@ -7,7 +7,8 @@ from sqlalchemy.orm import Session
 from app.schemas.orders import OrderItemCreate
 from app.models.orders import Order
 from app.models.order_items import OrderItem
-
+from sqlalchemy.exc import IntegrityError
+from psycopg.errors import UniqueViolation
 
 
 class InsufficientStock(Exception):
@@ -26,8 +27,12 @@ class OrderService:
         return product
     
     
-    def create_order(self, list_of_items: list[OrderItemCreate], user_id: int) -> Order:
+    def create_order(self, list_of_items: list[OrderItemCreate], user_id: int, idempotency_key: str) -> Order:
         quantity = {}
+        
+        order = self.order_repository.get_by_idempotency_key(user_id, idempotency_key)
+        if order:
+            return order
         
         for itm in list_of_items:
             if itm.product_id in quantity:
@@ -47,7 +52,7 @@ class OrderService:
                 total_amount+= product.price*value
                 validated_items.append({"product_id":key, "quantity":value, "unit_price":product.price })
                 self.product_repository.update_stock(product, value)
-            order = Order(user_id=user_id, total_amount=total_amount)
+            order = Order(user_id=user_id, total_amount=total_amount, idempotency_key=idempotency_key)
             order = self.order_repository.create_order(order)
             
             for ele in validated_items:
@@ -60,6 +65,22 @@ class OrderService:
                 self.order_repository.create_order_item(order_item)
             self.db.commit()
             return order
+        except IntegrityError as exc:
+            self.db.rollback()
+            print(f"IntegrityError: {exc.orig}")
+            if isinstance(exc.orig, UniqueViolation):
+                constraint_name = exc.orig.diag.constraint_name
+
+                if constraint_name == "uq_orders_user_id_idempotency_key":
+                    existing_order = self.order_repository.get_by_idempotency_key(
+                        user_id=user_id,
+                        idempotency_key=idempotency_key,
+                    )
+
+                    if existing_order:
+                        return existing_order
+
+            raise
         except Exception:
             self.db.rollback()
             raise

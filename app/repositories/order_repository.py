@@ -3,6 +3,7 @@ from app.models.orders import Order
 from app.models.order_items import OrderItem
 
 from sqlalchemy.orm import Session
+from sqlalchemy import select
 
 class OrderRepository:
     
@@ -19,3 +20,7 @@ class OrderRepository:
         self.db.add(order_item)
         self.db.flush()
         return order_item
+    
+    def get_by_idempotency_key(self, user_id: int, idempotency_key:str) ->  None|Order:
+        statement = select(Order).where(Order.user_id == user_id, Order.idempotency_key == idempotency_key)
+        return self.db.scalar(statement)

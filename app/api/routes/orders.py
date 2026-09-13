@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, Header
 from app.schemas.orders import OrderItemResponse, OrderItemCreate, OrderCreate, OrderResponse
 from app.models.user import User
 from app.api.dependencies import get_current_user, get_db
@@ -15,11 +15,12 @@ router = APIRouter(
 
 @router.post("/", response_model=OrderResponse)
 def create_order(order_data: OrderCreate,
+                 idempotency_key: str = Header(...),
                  current_user:User = Depends(get_current_user),
                  db: Session = Depends(get_db) ):
     try:
         service = OrderService(db)
-        return service.create_order(order_data.items, current_user.id)
+        return service.create_order(order_data.items, current_user.id, idempotency_key)
     except Exception as e:
         raise HTTPException(
             status_code= status.HTTP_400_BAD_REQUEST,

@@ -1,4 +1,4 @@
-from sqlalchemy import Integer, ForeignKey
+from sqlalchemy import Integer, ForeignKey, String, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.db.session import Base
@@ -12,6 +12,13 @@ if TYPE_CHECKING:
 
 class Order(Base):
     __tablename__ = "orders"
+    __table_args__ = (
+        UniqueConstraint(
+            "user_id",
+            "idempotency_key",
+            name="uq_orders_user_id_idempotency_key"
+        ),
+    )
     
     id: Mapped[int] = mapped_column(
         primary_key=True
@@ -25,6 +32,11 @@ class Order(Base):
     total_amount: Mapped[int] = mapped_column(
         Integer,
         nullable=False
+    )
+    
+    idempotency_key: Mapped[str] = mapped_column(
+        String(36),
+        nullable= False
     )
     
     user: Mapped["User"] = relationship(
