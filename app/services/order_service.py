@@ -14,6 +14,9 @@ from psycopg.errors import UniqueViolation
 class InsufficientStock(Exception):
     pass
 
+class OrderAccessDenied(Exception):
+    pass
+
 class OrderService:
     def __init__(self, db:Session) -> None:
         self.db = db
@@ -88,5 +91,12 @@ class OrderService:
     
     def get_orders_by_user(self, user_id:int) -> list[Order]:
         return self.order_repository.get_orders_by_user(user_id)
-            
+    
+    def get_order_by_id(self, user_id: int, order_id: int) -> Order | None:
+        
+        order = self.order_repository.get_order_by_id(order_id)
+        if order  and order.user_id != user_id:
+            raise OrderAccessDenied("Access Denied")
+        return order
+                    
         

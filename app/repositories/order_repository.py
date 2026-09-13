@@ -28,3 +28,7 @@ class OrderRepository:
     def get_orders_by_user(self, user_id: int) -> list[Order]:
         statement = select(Order).where(Order.user_id == user_id)
         return list(self.db.scalars(statement).all())
+    
+    def get_order_by_id(self, order_id: int) -> Order |None:
+        statement = select(Order).where(Order.id == order_id)
+        return self.db.scalar(statement)
