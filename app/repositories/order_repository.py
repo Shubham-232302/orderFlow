@@ -2,7 +2,7 @@
 from app.models.orders import Order
 from app.models.order_items import OrderItem
 
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, selectinload
 from sqlalchemy import select
 
 class OrderRepository:
@@ -26,7 +26,10 @@ class OrderRepository:
         return self.db.scalar(statement)
     
     def get_orders_by_user(self, user_id: int) -> list[Order]:
-        statement = select(Order).where(Order.user_id == user_id)
+        # statement = select(Order).where(Order.user_id == user_id)
+        statement = (select(Order)
+                     .where(Order.user_id == user_id)
+                     .options(selectinload(Order.items)))
         return list(self.db.scalars(statement).all())
     
     def get_order_by_id(self, order_id: int) -> Order |None:
